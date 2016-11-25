@@ -22,7 +22,8 @@ parser.add_argument('-p', '--plot', type=int, nargs=1, help='Plot figure flag')
 parser.add_argument('-c', '--channel', type=int, nargs=1, help='Channel number for plot')
 parser.add_argument('-s', '--sync', type=int, nargs=1, help='Number of synchronous additions')
 parser.add_argument('-w', '--wave', type=int, nargs=1, help='Output wave file flag')
-parser.add_argument('-a', '--audio', type=int, nargs=1, help='Index of audio device')
+parser.add_argument('-a', '--audio', type=int, nargs=1, help='Index of audio device for input')
+parser.add_argument('-ao', '--audio_out', type=int, nargs=1, help='Index of audio device for output')
 parser.add_argument('-d', '--direc', type=int, nargs=1, help='TSP up or down (0: up, 1: down)')
 parser.add_argument('-e', '--eval', type=int, nargs=1, help='TSP evaluation flag')
 
@@ -106,6 +107,11 @@ elif args.audio!=None:
 else:
     dev_id = -1 #default audio device
 
+if args.audio_out!=None:
+    dev_id_out = args.audio_out[0]
+else:
+    dev_id_out = -1 #default audio device
+
 # TSP up or down
 if args.direc!=None and args.direc[0] not in (0,1):
     print "Invalid argument for direc"
@@ -137,16 +143,19 @@ pa = pyaudio.PyAudio() #initialize pyaudio
 
 if dev_id<0: #default audio device
     in_dev_info = pa.get_default_input_device_info()
-    out_dev_info = pa.get_default_output_device_info()
 else:
     in_dev_info = pa.get_device_info_by_index(dev_id)
-    out_dev_info = in_dev_info
+
+if dev_id_out<0:
+    out_dev_info = pa.get_default_output_device_info()
+else:
+    out_dev_info = pa.get_device_info_by_index(dev_id_out)
 
 print "- Device (Input): %s, SampleRate: %dHz, MaxInputChannels: %d" % (in_dev_info['name'],int(in_dev_info['defaultSampleRate']),int(in_dev_info['maxInputChannels']))
 print "- Device (Output): %s, SampleRate: %dHz, MaxOutputChannels: %d" % (out_dev_info['name'],int(out_dev_info['defaultSampleRate']),int(out_dev_info['maxOutputChannels']))
 
 # Check audio device support
-if pa.is_format_supported(Fs, in_dev_info['index'], nchannel, pyaudio.paInt16, out_dev_info['index'], nchannel, pyaudio.paInt16) == False:
+if pa.is_format_supported(Fs, in_dev_info['index'], n_in_channel, pyaudio.paInt16, out_dev_info['index'], out_channel, pyaudio.paInt16) == False:
     print "Error: audio driver does not support current setting"
     sys.exit()
 
@@ -184,7 +193,7 @@ else:
                     input=True,
                     output=True,
                     input_device_index=dev_id,
-                    output_device_index=dev_id,
+                    output_device_index=dev_id_out,
                     frames_per_buffer=chunk)
 
 nframe = int(np.ceil(tsp_len*(nsync+1)/chunk)) #number of frames
