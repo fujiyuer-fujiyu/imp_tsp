@@ -155,12 +155,20 @@ tsp_sig, itsp_sig = tsp_gen.get_tsp(tsp_len, Fs, flg_ud, flg_eval)
 
 max_tsp_sig = np.max(np.absolute(tsp_sig))
 tsp_data = np.array([int(s/float(max_tsp_sig)*float(max_amp)) for s in tsp_sig], dtype=np.int16)
+itsp_data = np.array([int(s/float(max_tsp_sig)*float(max_amp)) for s in itsp_sig], dtype=np.int16)
 
 if flg_dump:
     wf = wave.open('tsp_out.wav','wb')
     wf.setparams((1, 2, Fs, tsp_len, 'NONE', 'not compressed'))
     wf.writeframesraw(tsp_data.tostring())
     wf.close()
+
+if flg_dump:
+    wf = wave.open('itsp_out.wav','wb')
+    wf.setparams((1, 2, Fs, tsp_len, 'NONE', 'not compressed'))
+    wf.writeframesraw(itsp_data.tostring())
+    wf.close()
+
 
 # Output data of TSP signal
 tsp_data_sync = np.zeros((nchannel,tsp_len*(nsync+1)), dtype=np.int16)
