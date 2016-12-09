@@ -3,31 +3,43 @@ from scipy import signal as sig
 import numpy as np
 import matplotlib.pyplot as plt
 
-(rate,data)=wavfile.read("./tsp_out.wav")
-data=sig.lfilter(np.array([0.5,0,0,0.3]), np.ones(1), data)
-length=data.shape[0]
+(rate,data)=wavfile.read("./tmp.wav")
+#data=sig.lfilter(np.array([0.5,0,0,0.3]), np.ones(1), data)
+i_length=data.shape[0]
 ###
-data2 = np.zeros(data.shape, data.dtype)
-length=data2.shape[0]
-print data.dtype
-print length
-print data.shape
-print data2.shape
-for i in range(0, length):
-    data2[i] = data[length -i -1]
-wavfile.write("./invtsp.wav", rate, data2)
+#data2 = np.zeros(data.shape, data.dtype)
+#length=data2.shape[0]
+#print data.dtype
+#print length
+#print data.shape
+#print data2.shape
+#for i in range(0, length):
+#    data2[i] = data[length -i -1]
+#wavfile.write("./invtsp.wav", rate, data2)
 
-#(rate,data2)=wavfile.read("./itsp_out.wav")
+(rate,data2)=wavfile.read("./itsp_out.wav")
+print data2.shape
+length = data2.shape[0]
+
+## synch addition
+data_s = np.zeros(length)
+for s in range(0,int(i_length/length)):
+    print str(s)+"th addition.. "
+    for i in range(0,length):
+        data_s[i] += data[i+s*length]
+    
 
 data3 = np.zeros(data.shape, data.dtype)
-data3=sig.fftconvolve(data,data2,mode='full')
+#data3=sig.fftconvolve(data,data2,mode='full')
+data3=sig.fftconvolve(data_s,data2,mode='full')
 print data3.shape
 print data3.dtype
 wavfile.write("./convoled.wav",rate,data3)
 plt.figure()
 plt.plot(data3)
 
-data4_f=np.fft.fft(data,length)*np.fft.fft(data2,length)
+#data4_f=np.fft.fft(data,length)*np.fft.fft(data2,length)
+data4_f=np.fft.fft(data_s,length)*np.fft.fft(data2,length)
 data4=np.fft.ifft(data4_f)
 print data4.shape
 print data4.dtype

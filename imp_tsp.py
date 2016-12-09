@@ -158,9 +158,10 @@ tsp_data = np.array([int(s/float(max_tsp_sig)*float(max_amp)) for s in tsp_sig],
 itsp_data = np.array([int(s/float(max_tsp_sig)*float(max_amp)) for s in itsp_sig], dtype=np.int16)
 
 if flg_dump:
-    wf = wave.open('tsp_out.wav','wb')
+    wf = wave.open('tsp_out.'+str(nsync)+'.wav','wb')
     wf.setparams((1, 2, Fs, tsp_len, 'NONE', 'not compressed'))
-    wf.writeframesraw(tsp_data.tostring())
+    for s in range(0,nsync):
+        wf.writeframesraw(tsp_data.tostring())
     wf.close()
 
 if flg_dump:
