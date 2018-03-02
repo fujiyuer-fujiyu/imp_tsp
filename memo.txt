@@ -1,0 +1,6 @@
+Audio files in this directory are genrated by the following command.
+ $ python imp_tsp.py -l 65536 -f 16000 -s 16 -e 1
+Then, IR is calculated by the following script.
+ $ python est_imp_from_file.py
+
+
